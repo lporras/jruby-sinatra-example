@@ -12,6 +12,3 @@ class Hola
 end
 
 Hola.new.saludar
-
-
-DateTimeFormatter.

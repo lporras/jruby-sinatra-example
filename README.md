@@ -4,7 +4,7 @@ A proof of concept demonstrating a Sinatra application running on Jetty using JR
 
 ## Prerequisites
 
-- JRuby 9.4.8.0 (or compatible version)
+- JRuby 9.3.13.0 (or compatible version)
 - Java 21
 - Docker and Docker Compose (optional)
 
@@ -19,7 +19,7 @@ A proof of concept demonstrating a Sinatra application running on Jetty using JR
 
 ## Running Locally with JRuby
 
-### Option 1: Build and Deploy WAR File
+### Option 1: Using Trinidad (Jetty-based server)
 
 1. Install dependencies:
 ```bash
@@ -27,21 +27,21 @@ jruby -S gem install bundler
 jruby -S bundle install
 ```
 
-2. Build the WAR file:
+2. Run with Trinidad (uses Jetty internally):
 ```bash
-jruby -S warble
+jruby -S trinidad
 ```
 
-3. Deploy the generated `sinatra-hello-world.war` to any Jetty server, or use Jetty Runner:
-```bash
-# Download Jetty Runner if you don't have it
-curl -o jetty-runner.jar https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-runner/11.0.15/jetty-runner-11.0.15.jar
+Access the application at http://localhost:3000
 
-# Run the WAR file
-java -jar jetty-runner.jar sinatra-hello-world.war
-```
+### Option 2: Build WAR File (Note: Warbler has compatibility issues with JRuby 9.4.x)
 
-Access the application at http://localhost:8080
+Due to a known bug in Warbler 2.0.5 with JRuby 9.4.x, WAR generation is currently not working.
+
+**Workaround options:**
+- Use JRuby 9.3.x where Warbler works correctly
+- Use Trinidad (Option 1 above) which runs on Jetty without needing a WAR file
+- Use Docker (see below) which handles the WAR build in an isolated environment
 
 ## Running with Docker
 
@@ -79,7 +79,7 @@ docker run -p 8080:8080 sinatra-jruby-jetty
 
 ## Environment Versions
 
-- JRuby: 9.4.8.0
-- Java: 21
+- JRuby: 9.3.13.0
+- Java: 11
 - Jetty: 11 (in Docker)
-- Ruby compatibility: 3.1.4
+- Ruby compatibility: 2.6.8
