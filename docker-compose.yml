@@ -1,9 +1,18 @@
 version: '3.8'
 
 services:
-  sinatra-jruby:
+  sinatra-trinidad:
     build: .
     ports:
       - "3000:3000"
+    environment:
+      - RACK_ENV=production
+
+  sinatra-tomcat:
+    build:
+      context: .
+      dockerfile: Dockerfile.tomcat
+    ports:
+      - "8080:8080"
     environment:
       - RACK_ENV=production

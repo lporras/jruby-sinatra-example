@@ -1,0 +1,36 @@
+FROM eclipse-temurin:21-jre
+
+# Install JRuby and git (needed for warbler from GitHub)
+ENV JRUBY_VERSION=9.4.9.0
+RUN apt-get update && apt-get install -y curl git && \
+    curl -fsSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz | tar xz -C /opt && \
+    ln -s /opt/jruby-${JRUBY_VERSION} /opt/jruby && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/opt/jruby/bin:${PATH}"
+
+# Install Tomcat
+ENV CATALINA_HOME=/opt/tomcat
+ENV TOMCAT_VERSION=9.0.98
+RUN curl -fsSL https://archive.apache.org/dist/tomcat/tomcat-9/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz | tar xz -C /opt && \
+    ln -s /opt/apache-tomcat-${TOMCAT_VERSION} ${CATALINA_HOME}
+
+WORKDIR /app
+
+# Copy application files and build WAR
+COPY Gemfile* ./
+RUN jruby -S gem install bundler && \
+    jruby -S bundle install
+
+COPY . .
+
+# Build WAR file using warbler (config/warble.rb includes JRuby 9.3+ workaround)
+RUN jruby -S bundle exec warble
+
+# Deploy WAR to Tomcat
+RUN cp *.war ${CATALINA_HOME}/webapps/ROOT.war && \
+    rm -rf ${CATALINA_HOME}/webapps/ROOT
+
+EXPOSE 8080
+
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
