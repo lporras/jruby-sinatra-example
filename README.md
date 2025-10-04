@@ -1,11 +1,11 @@
-# Sinatra Hello World with JRuby on Jetty
+# Sinatra Hello World with JRuby on Trinidad
 
-A proof of concept demonstrating a Sinatra application running on Jetty using JRuby and Warbler.
+A proof of concept demonstrating a Sinatra application running on Trinidad (Jetty-based server) using JRuby.
 
 ## Prerequisites
 
 - JRuby 9.3.13.0 (or compatible version)
-- Java 21
+- Java 11
 - Docker and Docker Compose (optional)
 
 ## Project Structure
@@ -13,8 +13,7 @@ A proof of concept demonstrating a Sinatra application running on Jetty using JR
 - `app.rb` - Sinatra application with two routes
 - `config.ru` - Rack configuration file
 - `Gemfile` - Ruby dependencies
-- `config/warble.rb` - Warbler configuration for WAR generation
-- `Dockerfile` - Multi-stage Docker build
+- `Dockerfile` - Docker build configuration
 - `docker-compose.yml` - Docker Compose configuration
 
 ## Running Locally with JRuby
@@ -34,14 +33,6 @@ jruby -S trinidad
 
 Access the application at http://localhost:3000
 
-### Option 2: Build WAR File (Note: Warbler has compatibility issues with JRuby 9.4.x)
-
-Due to a known bug in Warbler 2.0.5 with JRuby 9.4.x, WAR generation is currently not working.
-
-**Workaround options:**
-- Use JRuby 9.3.x where Warbler works correctly
-- Use Trinidad (Option 1 above) which runs on Jetty without needing a WAR file
-- Use Docker (see below) which handles the WAR build in an isolated environment
 
 ## Running with Docker
 
@@ -51,31 +42,31 @@ Due to a known bug in Warbler 2.0.5 with JRuby 9.4.x, WAR generation is currentl
 docker-compose up --build
 ```
 
-Access the application at http://localhost:8080
+Access the application at http://localhost:3000
 
 ### Using Docker directly
 
 ```bash
 # Build the image
-docker build -t sinatra-jruby-jetty .
+docker build -t sinatra-jruby-trinidad .
 
 # Run the container
-docker run -p 8080:8080 sinatra-jruby-jetty
+docker run -p 3000:3000 sinatra-jruby-trinidad
 ```
 
 ## Available Endpoints
 
-- `GET /` - Returns "Hello World from Sinatra running on JRuby with Jetty!"
+- `GET /` - Returns "Hello World from Sinatra running on JRuby with Trinidad!"
 - `GET /time` - Returns the current server time
 
 ## How It Works
 
-1. **Warbler** packages the Sinatra application into a WAR (Web Application Archive) file
-2. The WAR file includes JRuby runtime and all gem dependencies
-3. **Jetty** (Java web server) deploys and runs the WAR file natively
-4. The Docker build uses a multi-stage approach:
-   - Stage 1: Uses JRuby to build the WAR file
-   - Stage 2: Uses official Jetty image to deploy the WAR
+1. **Trinidad** is a Jetty-based web server built specifically for JRuby
+2. Trinidad runs Rack applications (like Sinatra) directly without needing WAR packaging
+3. The Docker build:
+   - Installs JRuby and dependencies
+   - Copies the application code
+   - Runs Trinidad server on port 3000
 
 ## Environment Versions
 

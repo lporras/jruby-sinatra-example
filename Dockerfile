@@ -1,28 +1,23 @@
-FROM openjdk:21-slim as builder
+FROM openjdk:8-slim
 
 # Install JRuby
-ENV JRUBY_VERSION=9.4.8.0
+ENV JRUBY_VERSION=9.3.13.0
 RUN apt-get update && apt-get install -y curl && \
     curl -fsSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz | tar xz -C /opt && \
-    ln -s /opt/jruby-${JRUBY_VERSION} /opt/jruby
+    ln -s /opt/jruby-${JRUBY_VERSION} /opt/jruby && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/opt/jruby/bin:${PATH}"
 
-WORKDIR /build
+WORKDIR /app
 
 # Copy application files
-COPY Gemfile app.rb config.ru ./
-COPY config/ ./config/
-
-# Install dependencies and build WAR
+COPY Gemfile* ./
 RUN jruby -S gem install bundler && \
-    jruby -S bundle install && \
-    jruby -S warble
+    jruby -S bundle install
 
-# Runtime stage with Jetty
-FROM jetty:11-jre21-alpine
+COPY . .
 
-# Copy WAR file from builder
-COPY --from=builder /build/*.war /var/lib/jetty/webapps/ROOT.war
+EXPOSE 3000
 
-EXPOSE 8080
+CMD ["jruby", "-S", "trinidad", "--config", "trinidad.yml"]
