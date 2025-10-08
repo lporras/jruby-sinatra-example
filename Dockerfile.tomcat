@@ -1,13 +1,27 @@
-FROM eclipse-temurin:21-jre
+FROM openjdk:21-slim
 
-# Install JRuby and git (needed for warbler from GitHub)
-ENV JRUBY_VERSION=9.4.9.0
-RUN apt-get update && apt-get install -y curl git && \
-    curl -fsSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz | tar xz -C /opt && \
-    ln -s /opt/jruby-${JRUBY_VERSION} /opt/jruby && \
-    rm -rf /var/lib/apt/lists/*
+# Install dependencies for asdf and JRuby
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    make \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/opt/jruby/bin:${PATH}"
+# Install asdf
+ENV ASDF_DIR=/root/.asdf
+RUN git clone https://github.com/asdf-vm/asdf.git ${ASDF_DIR} --branch v0.14.0 && \
+    echo '. ${ASDF_DIR}/asdf.sh' >> /root/.bashrc
+
+# Install JRuby via asdf
+ENV JRUBY_VERSION=jruby-9.3.13.0
+RUN . ${ASDF_DIR}/asdf.sh && \
+    asdf plugin add ruby && \
+    asdf install ruby ${JRUBY_VERSION} && \
+    asdf global ruby ${JRUBY_VERSION}
+
+ENV PATH="${ASDF_DIR}/shims:${ASDF_DIR}/bin:${PATH}"
 
 # Install Tomcat
 ENV CATALINA_HOME=/opt/tomcat

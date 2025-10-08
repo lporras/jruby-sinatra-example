@@ -1,0 +1,46 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    base64 (0.3.0)
+    jruby-jars (10.0.2.0)
+    jruby-rack (1.1.22)
+    mustermann (3.0.4)
+      ruby2_keywords (~> 0.0.1)
+    ostruct (0.6.2)
+    rack (2.2.19)
+    rack-protection (3.2.0)
+      base64 (>= 0.1.0)
+      rack (~> 2.2, >= 2.2.4)
+    rake (13.3.0)
+    rexml (3.4.4)
+    ruby2_keywords (0.0.5)
+    rubyzip (2.4.1)
+    sinatra (3.2.0)
+      mustermann (~> 3.0)
+      rack (~> 2.2, >= 2.2.4)
+      rack-protection (= 3.2.0)
+      tilt (~> 2.0)
+    tilt (2.6.1)
+    trinidad (1.4.6)
+      jruby-rack (~> 1.1.13)
+      trinidad_jars (>= 1.3.0, < 1.5.0)
+    trinidad_jars (1.4.2)
+    warbler-pre-release-tillsc (2.0.7.pre.pre)
+      jruby-jars (>= 9.0.0)
+      jruby-rack (>= 1.1.1, < 1.3)
+      ostruct (= 0.6.2)
+      rake (>= 13.0.3)
+      rexml (~> 3.0)
+      rubyzip (>= 1.0.0)
+
+PLATFORMS
+  universal-java-21
+
+DEPENDENCIES
+  sinatra
+  trinidad (~> 1.4.6)
+  trinidad_jars (~> 1.4.2)
+  warbler-pre-release-tillsc
+
+BUNDLED WITH
+   2.4.22

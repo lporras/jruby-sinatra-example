@@ -3,7 +3,7 @@ java_import 'java.time.LocalDateTime'
 java_import 'java.time.format.DateTimeFormatter'
 
 get '/' do
-  "Hello World from Sinatra running on JRuby with Jetty!"
+  "Hello World from Sinatra running on JRuby"
 end
 
 get '/time' do

@@ -1,13 +1,27 @@
-FROM openjdk:8-slim
+FROM openjdk:21-slim
 
-# Install JRuby
-ENV JRUBY_VERSION=9.3.13.0
-RUN apt-get update && apt-get install -y curl && \
-    curl -fsSL https://repo1.maven.org/maven2/org/jruby/jruby-dist/${JRUBY_VERSION}/jruby-dist-${JRUBY_VERSION}-bin.tar.gz | tar xz -C /opt && \
-    ln -s /opt/jruby-${JRUBY_VERSION} /opt/jruby && \
-    rm -rf /var/lib/apt/lists/*
+# Install dependencies for asdf and JRuby
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    make \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/opt/jruby/bin:${PATH}"
+# Install asdf
+ENV ASDF_DIR=/root/.asdf
+RUN git clone https://github.com/asdf-vm/asdf.git ${ASDF_DIR} --branch v0.14.0 && \
+    echo '. ${ASDF_DIR}/asdf.sh' >> /root/.bashrc
+
+# Install JRuby via asdf
+ENV JRUBY_VERSION=jruby-9.3.13.0
+RUN . ${ASDF_DIR}/asdf.sh && \
+    asdf plugin add ruby && \
+    asdf install ruby ${JRUBY_VERSION} && \
+    asdf global ruby ${JRUBY_VERSION}
+
+ENV PATH="${ASDF_DIR}/shims:${ASDF_DIR}/bin:${PATH}"
 
 WORKDIR /app
 
@@ -18,6 +32,12 @@ RUN jruby -S gem install bundler && \
 
 COPY . .
 
+# Create startup script with JVM arguments
+RUN echo '#!/bin/bash\n\
+export _JAVA_OPTIONS="--add-opens=java.base/java.io=org.jruby.dist --add-opens=java.base/java.nio=org.jruby.dist --add-opens=java.base/sun.nio.ch=org.jruby.dist --add-opens=java.base/java.lang=org.jruby.dist --add-opens=java.base/java.lang.reflect=org.jruby.dist --add-opens=java.base/java.text=org.jruby.dist --add-opens=java.base/java.util=org.jruby.dist --add-opens=java.base/java.security=org.jruby.dist --add-opens=java.base/java.util.regex=org.jruby.dist --add-opens=java.base/java.net=org.jruby.dist --add-opens=java.management/sun.management=org.jruby.dist --add-opens=java.logging/java.util.logging=org.jruby.dist"\n\
+exec jruby -S trinidad --config trinidad.yml\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
 EXPOSE 3000
 
-CMD ["jruby", "-S", "trinidad", "--config", "trinidad.yml"]
+CMD ["/app/start.sh"]
