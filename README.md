@@ -1,22 +1,23 @@
-# Sinatra Hello World with JRuby on Trinidad
+# Sinatra Hello World with JRuby
 
-A proof of concept demonstrating a Sinatra application running on Trinidad (Jetty-based server) using JRuby.
+A proof of concept demonstrating a Sinatra application running on different servers (Trinidad/Jetty and Tomcat) using JRuby.
 
 ## Prerequisites
 
-- JRuby 9.3.13.0 (or compatible version)
-- Java 11
-- Docker and Docker Compose (optional)
+- JRuby 9.3.13.0
+- Java 21 (OpenJDK 21)
+- Docker and Docker Compose (for containerized deployment)
 
 ## Project Structure
 
 - `app.rb` - Sinatra application with two routes
 - `config.ru` - Rack configuration file
 - `Gemfile` - Ruby dependencies
-- `Dockerfile` - Docker build configuration
-- `docker-compose.yml` - Docker Compose configuration
+- `Dockerfile` - Docker build configuration for Trinidad/Jetty
+- `Dockerfile.tomcat` - Docker build configuration for Tomcat
+- `docker-compose.yml` - Docker Compose configuration for both servers
 
-## Running Locally with JRuby
+## Running Locally (Without Docker)
 
 ### Option 1: Using Trinidad (Jetty-based server)
 
@@ -26,32 +27,72 @@ jruby -S gem install bundler
 jruby -S bundle install
 ```
 
-2. Run with Trinidad (uses Jetty internally):
+2. Run with Trinidad:
 ```bash
 jruby -S trinidad
 ```
 
 Access the application at http://localhost:3000
 
+### Option 2: Using Tomcat
+
+1. Install dependencies and build WAR file:
+```bash
+jruby -S gem install bundler
+jruby -S bundle install
+jruby -S bundle exec warble
+```
+
+2. Deploy the generated WAR file to your Tomcat installation's webapps directory
 
 ## Running with Docker
 
-### Using Docker Compose (Recommended)
+### Running Both Servers Simultaneously
 
+Start both Trinidad (Jetty) and Tomcat servers:
 ```bash
 docker-compose up --build
 ```
 
-Access the application at http://localhost:3000
+Access the applications:
+- **Trinidad/Jetty**: http://localhost:3000
+- **Tomcat**: http://localhost:8080
 
-### Using Docker directly
+Stop both servers:
+```bash
+docker-compose down
+```
 
+### Running Individual Servers
+
+#### Trinidad/Jetty only:
+```bash
+docker-compose up --build sinatra-trinidad
+```
+
+#### Tomcat only:
+```bash
+docker-compose up --build sinatra-tomcat
+```
+
+### Using Docker Directly
+
+#### Trinidad/Jetty:
 ```bash
 # Build the image
 docker build -t sinatra-jruby-trinidad .
 
 # Run the container
 docker run -p 3000:3000 sinatra-jruby-trinidad
+```
+
+#### Tomcat:
+```bash
+# Build the image
+docker build -f Dockerfile.tomcat -t sinatra-jruby-tomcat .
+
+# Run the container
+docker run -p 8080:8080 sinatra-jruby-tomcat
 ```
 
 ## Available Endpoints
@@ -61,16 +102,19 @@ docker run -p 3000:3000 sinatra-jruby-trinidad
 
 ## How It Works
 
+### Trinidad/Jetty Setup
 1. **Trinidad** is a Jetty-based web server built specifically for JRuby
 2. Trinidad runs Rack applications (like Sinatra) directly without needing WAR packaging
-3. The Docker build:
-   - Installs JRuby and dependencies
-   - Copies the application code
-   - Runs Trinidad server on port 3000
+3. Runs on port 3000
+
+### Tomcat Setup
+1. Uses **Warbler** to package the Sinatra application as a WAR file
+2. Deploys the WAR to Tomcat's webapps directory
+3. Runs on port 8080
 
 ## Environment Versions
 
 - JRuby: 9.3.13.0
-- Java: 11
-- Jetty: 11 (in Docker)
+- Java: OpenJDK 21
+- Tomcat: 9.0.98 (in Docker)
 - Ruby compatibility: 2.6.8
