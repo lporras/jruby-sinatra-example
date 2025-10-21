@@ -45,6 +45,14 @@ jruby -S bundle exec warble
 
 2. Deploy the generated WAR file to your Tomcat installation's webapps directory
 
+### Option 3: Using puma
+
+1. Install dependencies:
+```bash
+jruby -S gem install puma
+jruby -S puma -p 3000
+```
+
 ## Running with Docker
 
 ### Running Both Servers Simultaneously
@@ -67,12 +75,12 @@ docker compose down
 
 #### Trinidad/Jetty only:
 ```bash
-docker-compose up --build sinatra-trinidad
+docker compose up --build sinatra-trinidad
 ```
 
 #### Tomcat only:
 ```bash
-docker-compose up --build sinatra-tomcat
+docker compose up --build sinatra-tomcat
 ```
 
 ### Using Docker Directly
