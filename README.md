@@ -51,7 +51,7 @@ jruby -S bundle exec warble
 
 Start both Trinidad (Jetty) and Tomcat servers:
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 Access the applications:
@@ -60,7 +60,7 @@ Access the applications:
 
 Stop both servers:
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### Running Individual Servers
