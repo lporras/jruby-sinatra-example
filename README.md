@@ -29,7 +29,7 @@ jruby -S bundle install
 
 2. Run with Trinidad:
 ```bash
-jruby -S trinidad
+jruby -J--add-opens=java.base/sun.nio.ch=ALL-UNNAMED -J--add-opens=java.base/java.io=ALL-UNNAMED -J--add-opens=java.logging/java.util.logging=ALL-UNNAMED -S trinidad
 ```
 
 Access the application at http://localhost:3000
